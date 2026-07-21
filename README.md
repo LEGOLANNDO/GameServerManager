@@ -1,0 +1,2 @@
+# GameServerManager
+個人ゲームサーバーの状態をDiscordで通知します
