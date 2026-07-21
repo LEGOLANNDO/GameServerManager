@@ -28,6 +28,72 @@ public class ProcessManagerService
     public event Action<string, int?>? ProcessStopped;
 
     /// <summary>
+    /// 既存のプロセスをスキャンし、実行中のサーバーがあればアタッチして復旧する
+    /// </summary>
+    public List<(string ServerId, int Pid)> AttachRunningProcesses(IEnumerable<ServerConfig> servers)
+    {
+        var recovered = new List<(string, int)>();
+        var allProcesses = Process.GetProcesses();
+
+        foreach (var server in servers)
+        {
+            if (string.IsNullOrWhiteSpace(server.ExecutablePath)) continue;
+
+            try
+            {
+                // 実行ファイルのパスで一致するプロセスを探す
+                var match = allProcesses.FirstOrDefault(p =>
+                {
+                    try
+                    {
+                        return !p.HasExited && string.Equals(p.MainModule?.FileName, server.ExecutablePath, StringComparison.OrdinalIgnoreCase);
+                    }
+                    catch
+                    {
+                        // 権限エラー等でMainModuleにアクセスできないプロセスは無視
+                        return false;
+                    }
+                });
+
+                if (match != null && !IsProcessRunning(server.Id))
+                {
+                    match.EnableRaisingEvents = true;
+                    var managed = new ManagedProcess
+                    {
+                        ServerId = server.Id,
+                        Process = match,
+                        Pid = match.Id,
+                        StartedAt = match.StartTime,
+                        ServerType = server.Type
+                    };
+
+                    _managedProcesses[server.Id] = managed;
+                    
+                    // 終了時のイベントハンドラを再登録
+                    managed.Process.Exited += (s, e) =>
+                    {
+                        if (_managedProcesses.TryRemove(server.Id, out var m))
+                        {
+                            int? exitCode = null;
+                            try { exitCode = m.Process?.ExitCode; } catch { }
+                            ProcessStopped?.Invoke(server.Id, exitCode);
+                        }
+                    };
+
+                    recovered.Add((server.Id, match.Id));
+                    ProcessStarted?.Invoke(server.Id, match.Id);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ProcessManager] Error attaching to process for {server.Name}: {ex.Message}");
+            }
+        }
+
+        return recovered;
+    }
+
+    /// <summary>
     /// サーバーのプロセスを起動する
     /// </summary>
     /// <param name="server">サーバー設定</param>

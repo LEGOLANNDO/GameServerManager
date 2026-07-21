@@ -161,6 +161,13 @@ public partial class DashboardViewModel : ObservableObject
     {
         var config = _configService.LoadConfig();
         Servers.Clear();
+
+        // 稼働中のプロセスを検知して復旧する
+        var recovered = _processManager.AttachRunningProcesses(config.Servers);
+        foreach (var r in recovered)
+        {
+            _resourceMonitor.StartTracking(r.ServerId, r.Pid);
+        }
         foreach (var server in config.Servers)
         {
             var isRunning = _processManager.IsProcessRunning(server.Id);

@@ -7,7 +7,8 @@
     PrimaryButtonText="実行"
     CloseButtonText="キャンセル"
     DialogMaxWidth="480"
-    IsPrimaryButtonEnabled="True">
+    IsPrimaryButtonEnabled="True"
+    Style="{StaticResource {x:Type ui:ContentDialog}}">
 
     <StackPanel Margin="0,8,0,0">
 

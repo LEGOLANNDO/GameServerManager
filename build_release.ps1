@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $projectPath = ".\src\GameServerManager\GameServerManager.csproj"
 $publishDir = ".\dist\portable\GameServerManager"
-$zipPath = ".\dist\GameServerManager-v1.0.6-Portable.zip"
+$zipPath = ".\dist\GameServerManager-v1.0.7-Portable.zip"
 
 Write-Host "Cleaning dist folder..."
 if (Test-Path ".\dist") {
