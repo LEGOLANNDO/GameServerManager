@@ -80,7 +80,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <ui:CardControl
-                            Width="340"
+                            Width="380"
                             Margin="0,0,16,16"
                             Padding="20">
                             <Grid>
@@ -197,7 +197,7 @@
                                     <!-- スケジュールボタン -->
                                     <ui:Button
                                         Content="スケジュール"
-                                        Icon="{ui:SymbolIcon Calendar24}"
+                                        Icon="{ui:SymbolIcon Timer24}"
                                         Appearance="Secondary"
                                         Margin="0,0,8,0"
                                         Command="{Binding DataContext.SetScheduleCommand, RelativeSource={RelativeSource AncestorType=Page}}"
