@@ -39,6 +39,11 @@ public class ManagedProcess
     public int? ExitCode { get; set; }
 
     /// <summary>
+    /// アプリからの明示的な終了要求が行われたか
+    /// </summary>
+    public bool IsIntentionalShutdown { get; set; } = false;
+
+    /// <summary>
     /// プロセスが生存しているか
     /// </summary>
     public bool IsAlive

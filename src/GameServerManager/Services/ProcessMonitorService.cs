@@ -116,8 +116,11 @@ public class ProcessMonitorService : IHostedService, IDisposable
 
                         managed.ExitCode = exitCode;
 
-                        // クラッシュイベント発火
-                        ServerCrashed?.Invoke(serverId, exitCode);
+                        // クラッシュイベント発火 (意図しない終了の場合のみ)
+                        if (!managed.IsIntentionalShutdown)
+                        {
+                            ServerCrashed?.Invoke(serverId, exitCode);
+                        }
                         currentStatus = ServerStatus.Error;
                         
                         // リソース追跡停止

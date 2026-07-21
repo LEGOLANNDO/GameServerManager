@@ -91,6 +91,7 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
                                 <!-- サーバー名 + ステータスバッジ -->
@@ -193,6 +194,14 @@
 
                                 <!-- アクションボタン -->
                                 <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                                    <!-- スケジュールボタン -->
+                                    <ui:Button
+                                        Content="スケジュール"
+                                        Icon="{ui:SymbolIcon Calendar24}"
+                                        Appearance="Secondary"
+                                        Margin="0,0,8,0"
+                                        Command="{Binding DataContext.SetScheduleCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                        CommandParameter="{Binding}" />
                                     <!-- 起動ボタン (停止中のみ表示) -->
                                     <ui:Button
                                         Content="起動"
@@ -220,6 +229,26 @@
                                         CommandParameter="{Binding}"
                                         Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 </StackPanel>
+
+                                <!-- スケジュール表示 -->
+                                <TextBlock
+                                    Grid.Row="6"
+                                    Text="{Binding ScheduleText}"
+                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                    FontSize="12"
+                                    Margin="0,8,0,0"
+                                    HorizontalAlignment="Right">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ScheduleText}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </ui:CardControl>
                     </DataTemplate>

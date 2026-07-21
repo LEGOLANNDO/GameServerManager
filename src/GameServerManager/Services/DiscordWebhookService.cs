@@ -161,7 +161,7 @@ public class DiscordWebhookService
             ["fields"] = new[]
             {
                 new Dictionary<string, object> { ["name"] = "送信時刻", ["value"] = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), ["inline"] = true },
-                new Dictionary<string, object> { ["name"] = "アプリバージョン", ["value"] = "v1.0.0", ["inline"] = true }
+                new Dictionary<string, object> { ["name"] = "アプリバージョン", ["value"] = "v1.1.0", ["inline"] = true }
             },
             ["footer"] = new Dictionary<string, object> { ["text"] = "Game Server Manager" },
             ["timestamp"] = DateTime.UtcNow.ToString("o")

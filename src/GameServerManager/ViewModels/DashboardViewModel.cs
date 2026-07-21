@@ -21,6 +21,7 @@ public partial class DashboardViewModel : ObservableObject
     private readonly ResourceMonitorService _resourceMonitor;
     private readonly DiscordWebhookService _discordService;
     private readonly Dispatcher _dispatcher;
+    private readonly DispatcherTimer _scheduleTimer;
 
     [ObservableProperty]
     private ObservableCollection<ServerDisplayItem> _servers = new();
@@ -38,6 +39,13 @@ public partial class DashboardViewModel : ObservableObject
         _resourceMonitor = resourceMonitor;
         _discordService = discordService;
         _dispatcher = Dispatcher.CurrentDispatcher;
+
+        _scheduleTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(10)
+        };
+        _scheduleTimer.Tick += OnScheduleTimerTick;
+        _scheduleTimer.Start();
 
         // 監視イベントの購読
         _processMonitor.StatusChanged += OnStatusChanged;
@@ -150,6 +158,101 @@ public partial class DashboardViewModel : ObservableObject
             {
                 _ = _discordService.SendRestartNotificationAsync(
                     item.Name, reason.ClassificationText, reason.Reason, webhookUrl);
+                
+                // 再起動後に「起動」通知も送信する
+                _ = _discordService.SendStartNotificationAsync(item.Name, webhookUrl);
+            }
+        }
+    }
+
+    /// <summary>
+    /// スケジュール設定ダイアログを開き、設定を保存する
+    /// </summary>
+    [RelayCommand]
+    private async Task SetScheduleAsync(ServerDisplayItem? item)
+    {
+        if (item == null) return;
+
+        var dialog = new GameServerManager.Views.Dialogs.ScheduleDialog(item.Name, item.ScheduledTime, item.ScheduledAction);
+        var result = await dialog.ShowAndGetResultAsync();
+
+        if (result != null)
+        {
+            if (result.IsCleared)
+            {
+                item.ScheduledTime = null;
+                item.ScheduledAction = string.Empty;
+            }
+            else
+            {
+                item.ScheduledTime = result.ScheduledTime;
+                item.ScheduledAction = result.ScheduledAction;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 10秒ごとのタイマーでスケジュールを監視し、実行する
+    /// </summary>
+    private async void OnScheduleTimerTick(object? sender, EventArgs e)
+    {
+        var now = DateTime.Now;
+        var toExecute = Servers.Where(s => s.ScheduledTime.HasValue && s.ScheduledTime.Value <= now).ToList();
+
+        foreach (var item in toExecute)
+        {
+            var action = item.ScheduledAction;
+            
+            // スケジュールをクリア
+            item.ScheduledTime = null;
+            item.ScheduledAction = string.Empty;
+
+            if (action == "Restart")
+            {
+                // UI上では再起動ボタン押下と同じ扱いにするため、
+                // 再起動理由ダイアログが出るのを防ぐには直接 ProcessManager を叩くか
+                // 理由を「スケジュール」として処理を分ける必要がある。
+                // 簡易的に直接再起動を実行する。
+                var serverConfig = FindServerConfig(item.Id);
+                if (serverConfig != null)
+                {
+                    item.Status = ServerStatus.Stopped;
+                    var (success, pid) = await _processManager.RestartServerAsync(serverConfig);
+                    if (success)
+                    {
+                        item.Status = ServerStatus.Running;
+                        item.StartedAt = DateTime.Now;
+                        _resourceMonitor.StartTracking(item.Id, pid);
+
+                        var webhookUrl = _discordService.ResolveWebhookUrl(serverConfig.EncryptedWebhook);
+                        if (!string.IsNullOrEmpty(webhookUrl))
+                        {
+                            await _discordService.SendRestartNotificationAsync(item.Name, "スケジュール", "予約された再起動", webhookUrl);
+                            await _discordService.SendStartNotificationAsync(item.Name, webhookUrl);
+                        }
+                    }
+                }
+            }
+            else if (action == "Stop")
+            {
+                var serverConfig = FindServerConfig(item.Id);
+                if (serverConfig != null)
+                {
+                    var success = await _processManager.StopServerAsync(item.Id);
+                    if (success)
+                    {
+                        item.Status = ServerStatus.Stopped;
+                        item.CpuUsage = 0;
+                        item.MemoryUsageMb = 0;
+                        item.StartedAt = null;
+
+                        var webhookUrl = _discordService.ResolveWebhookUrl(serverConfig.EncryptedWebhook);
+                        if (!string.IsNullOrEmpty(webhookUrl))
+                        {
+                            await _discordService.SendStopNotificationAsync(item.Name, "スケジュール", "予約された停止", webhookUrl);
+                        }
+                    }
+                }
             }
         }
     }
@@ -308,6 +411,22 @@ public partial class ServerDisplayItem : ObservableObject
     [ObservableProperty]
     private DateTime? _startedAt;
 
+    [ObservableProperty]
+    private DateTime? _scheduledTime;
+
+    [ObservableProperty]
+    private string _scheduledAction = string.Empty; // "Restart" or "Stop"
+
+    public string ScheduleText
+    {
+        get
+        {
+            if (ScheduledTime == null) return string.Empty;
+            var actionText = ScheduledAction == "Restart" ? "再起動" : "停止";
+            return $"📅 {ScheduledTime.Value:MM/dd HH:mm} に{actionText}されます";
+        }
+    }
+
     /// <summary>
     /// ステータスに応じた色コード
     /// </summary>
@@ -368,6 +487,16 @@ public partial class ServerDisplayItem : ObservableObject
     partial void OnStartedAtChanged(DateTime? value)
     {
         OnPropertyChanged(nameof(UptimeText));
+    }
+
+    partial void OnScheduledTimeChanged(DateTime? value)
+    {
+        OnPropertyChanged(nameof(ScheduleText));
+    }
+
+    partial void OnScheduledActionChanged(string value)
+    {
+        OnPropertyChanged(nameof(ScheduleText));
     }
 }
 

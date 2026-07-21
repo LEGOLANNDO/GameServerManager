@@ -156,6 +156,9 @@ public class ProcessManagerService
         {
             var process = managed.Process!;
 
+            // 意図的な終了であることをマーク
+            managed.IsIntentionalShutdown = true;
+
             // Docker の場合は docker-compose down で停止
             if (managed.ServerType == "docker")
             {

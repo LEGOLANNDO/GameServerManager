@@ -1,0 +1,60 @@
+<ui:ContentDialog
+    x:Class="GameServerManager.Views.Dialogs.ScheduleDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="スケジュールの設定"
+    PrimaryButtonText="スケジュール開始"
+    SecondaryButtonText="スケジュール解除"
+    CloseButtonText="キャンセル"
+    DialogMaxWidth="480"
+    IsPrimaryButtonEnabled="True"
+    Style="{StaticResource {x:Type ui:ContentDialog}}">
+
+    <StackPanel Margin="0,8,0,0">
+        <TextBlock
+            x:Name="DescriptionText"
+            FontSize="15"
+            FontWeight="SemiBold"
+            TextWrapping="Wrap"
+            Margin="0,0,0,16" />
+
+        <!-- アクション -->
+        <TextBlock Text="アクション" FontSize="13" FontWeight="Medium" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+            <RadioButton
+                x:Name="RestartRadio"
+                Content="再起動 (Restart)"
+                IsChecked="True"
+                Margin="0,0,24,0"
+                FontSize="13" />
+            <RadioButton
+                x:Name="StopRadio"
+                Content="停止 (Stop)"
+                FontSize="13" />
+        </StackPanel>
+
+        <!-- 実行日時 -->
+        <TextBlock Text="実行日時" FontSize="13" FontWeight="Medium" Margin="0,0,0,8" />
+        
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <DatePicker x:Name="ScheduleDatePicker" Width="140" Margin="0,0,12,0" />
+            
+            <ComboBox x:Name="HourComboBox" Width="70" Margin="0,0,8,0">
+                <!-- Code-behind will populate 0-23 -->
+            </ComboBox>
+            <TextBlock Text="時" VerticalAlignment="Center" Margin="0,0,12,0" />
+
+            <ComboBox x:Name="MinuteComboBox" Width="70" Margin="0,0,8,0">
+                <!-- Code-behind will populate 0-59 -->
+            </ComboBox>
+            <TextBlock Text="分" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <TextBlock
+            Text="※ スケジュールはアプリが起動している間のみ有効です"
+            FontSize="11"
+            Opacity="0.4"
+            Margin="0,8,0,0" />
+    </StackPanel>
+</ui:ContentDialog>
