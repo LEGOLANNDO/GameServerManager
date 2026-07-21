@@ -1,6 +1,6 @@
 [Setup]
 AppName=Game Server Manager
-AppVersion=1.0.5
+AppVersion=1.0.6
 AppPublisher=GameServerManager Contributors
 DefaultDirName={autopf}\GameServerManager
 DefaultGroupName=Game Server Manager
@@ -8,7 +8,7 @@ UninstallDisplayIcon={app}\GameServerManager.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=dist
-OutputBaseFilename=GameServerManager-v1.0.5-Setup
+OutputBaseFilename=GameServerManager-v1.0.6-Setup
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest

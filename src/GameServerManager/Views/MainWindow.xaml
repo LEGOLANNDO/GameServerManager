@@ -89,5 +89,8 @@
                 </ContextMenu>
             </tray:NotifyIcon.Menu>
         </tray:NotifyIcon>
+
+        <!-- ダイアログホスト用 ContentPresenter -->
+        <ContentPresenter x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2" />
     </Grid>
 </ui:FluentWindow>

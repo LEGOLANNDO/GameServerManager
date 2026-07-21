@@ -24,6 +24,12 @@ public partial class ShutdownReasonDialog : ContentDialog
         InitializeComponent();
         OperationDescription.Text = $"サーバー「{serverName}」を{operationType}します。\n理由を入力してください。";
         Title = $"{operationType}の確認";
+        
+        // メインウィンドウの DialogHost を設定
+        if (System.Windows.Application.Current.MainWindow is MainWindow mainWindow)
+        {
+            DialogHost = mainWindow.RootContentDialog;
+        }
     }
 
     /// <summary>
