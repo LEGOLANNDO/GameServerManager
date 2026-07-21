@@ -174,21 +174,17 @@ public partial class SettingsViewModel : ObservableObject
 
     public static void ApplyTheme(string theme)
     {
-        var appTheme = theme switch
-        {
-            "dark" => ApplicationTheme.Dark,
-            "light" => ApplicationTheme.Light,
-            _ => ApplicationTheme.Unknown // system follow
-        };
-
-        if (appTheme == ApplicationTheme.Unknown)
-        {
-            // システムテーマに追従
-            ApplicationThemeManager.ApplySystemTheme();
-        }
+        ApplicationTheme appTheme;
+        if (theme == "dark")
+            appTheme = ApplicationTheme.Dark;
+        else if (theme == "light")
+            appTheme = ApplicationTheme.Light;
         else
         {
-            ApplicationThemeManager.Apply(appTheme);
+            var sysTheme = ApplicationThemeManager.GetSystemTheme();
+            appTheme = sysTheme == SystemTheme.Dark ? ApplicationTheme.Dark : ApplicationTheme.Light;
         }
+
+        ApplicationThemeManager.Apply(appTheme);
     }
 }

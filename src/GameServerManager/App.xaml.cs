@@ -60,14 +60,14 @@ public partial class App : Application
     {
         await _host!.StartAsync();
 
-        // 設定からテーマを適用
-        var configService = Services.GetRequiredService<ConfigService>();
-        var config = configService.LoadConfig();
-        SettingsViewModel.ApplyTheme(config.AppSettings.Theme);
-
         // MainWindow を表示
         var mainWindow = Services.GetRequiredService<MainWindow>();
         mainWindow.Show();
+
+        // ウィンドウ表示後にテーマを適用 (テーマブラシの確実な反映のため)
+        var configService = Services.GetRequiredService<ConfigService>();
+        var config = configService.LoadConfig();
+        SettingsViewModel.ApplyTheme(config.AppSettings.Theme);
 
         base.OnStartup(e);
     }
