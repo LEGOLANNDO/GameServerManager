@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $projectPath = ".\src\GameServerManager\GameServerManager.csproj"
 $publishDir = ".\dist\portable\GameServerManager"
-$zipPath = ".\dist\GameServerManager-v1.1.1-Portable.zip"
+$zipPath = ".\dist\GameServerManager-v1.2.0-Portable.zip"
 
 Write-Host "Cleaning dist folder..."
 if (Test-Path ".\dist") {
@@ -19,3 +19,12 @@ Compress-Archive -Path "$publishDir\*" -DestinationPath $zipPath -Force
 
 Write-Host "Build and package complete!"
 Write-Host "Portable ZIP created at: $zipPath"
+
+$isccPath = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
+if (Test-Path $isccPath) {
+    Write-Host "Building Setup EXE..."
+    & $isccPath ".\installer.iss"
+    Write-Host "Setup EXE created!"
+} else {
+    Write-Host "Inno Setup 6 (ISCC.exe) not found. Skipping Setup EXE creation."
+}

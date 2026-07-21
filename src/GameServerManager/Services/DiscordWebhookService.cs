@@ -61,6 +61,7 @@ public class DiscordWebhookService
             {
                 new Dictionary<string, object> { ["name"] = "起動時刻", ["value"] = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), ["inline"] = true }
             },
+            ["footer"] = new Dictionary<string, object> { ["text"] = "※ 完全に起動するには時間がかかる場合があります" },
             ["timestamp"] = DateTime.UtcNow.ToString("o")
         };
 
@@ -161,7 +162,7 @@ public class DiscordWebhookService
             ["fields"] = new[]
             {
                 new Dictionary<string, object> { ["name"] = "送信時刻", ["value"] = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), ["inline"] = true },
-                new Dictionary<string, object> { ["name"] = "アプリバージョン", ["value"] = "v1.1.0", ["inline"] = true }
+                new Dictionary<string, object> { ["name"] = "アプリバージョン", ["value"] = "v1.2.0", ["inline"] = true }
             },
             ["footer"] = new Dictionary<string, object> { ["text"] = "Game Server Manager" },
             ["timestamp"] = DateTime.UtcNow.ToString("o")
